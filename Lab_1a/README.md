@@ -55,7 +55,7 @@ The system was built in the following order:
 ---
 
 ## Architecture Screenshot
-![VPC Architecture](Screenshots/vpc structure.png)
+![VPC Architecture](Screenshots/vpc-structure.png)
 
 ##Security Design
 Security was implemented intentionally and mirrors production systems. 
@@ -72,3 +72,4 @@ Source = EC2 Security Group ID
 No 0.0.0.0/0 exposure
 
 EC2 handles public HTTP traffic
+
