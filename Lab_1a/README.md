@@ -58,18 +58,40 @@ The system was built in the following order:
 ![VPC Architecture](Screenshots/vpc-structure.png)
 
 ##Security Design
-Security was implemented intentionally and mirrors production systems. 
-
-##Network Isolation
-RDS is not publicly accessible
+Security was implemented intentionally and mirrors production systems. Security Groups act as virtual firewalls. 
 
 RDS inbound rule:
 
 TCP 3306
-
 Source = EC2 Security Group ID
-
 No 0.0.0.0/0 exposure
-
 EC2 handles public HTTP traffic
+
+This enforces least-privilege communication.
+Only the application server can reach the database.
+
+![RDS Security Group](Screenshots/security-group.png)
+
+### RDS- Managed Database Layer
+
+Amazon RDS was configured:
+-MySQL engine
+-Private subnet
+-Public access disabled
+-Accessible only from EC2 security group
+![RDS Instance](Screenshots/database-instnace.png)
+
+## Identity & Credential Management
+-EC2 uses an IAM instnace profile
+-No static AWS credentials stored on server
+-Secrets Manager stores database credentials
+-Parameter Store stores non-secret configuration
+-Application retrieves configuration dynamically at runtime
+
+
+
+---
+
+
+
 
