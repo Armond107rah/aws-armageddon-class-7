@@ -57,8 +57,36 @@ The system was built in the following order:
 ## Architecture Screenshot
 ![VPC Architecture](Screenshots/vpc-structure.png)
 
-##Security Design
+## Creating a VPC
+1. Connect to AWS and log in to your console.
+2. Search for VPC and open the VPC dashboard.
+3. Click on create VPC
+4. Select VPC and more for VPC settings
+5. Name your VPC <lab-1a-vpc>
+6. Input your IPv4 CIDR block <10.234.0.0/16>
+7. Select Number of Availability Zones (AZs) <3>
+8. Select number of public and private subnets <3>
+9. Click on customize subnets CIDR blocks and assign the CIDR blocks for each private and public subnet
+10. Select Regional - New, for NAT gateways
+11. Ensure that none is selected for VPC endpoints.
+12. Click on Create VPC to create the VPC.
+
+## Security Design
 Security was implemented intentionally and mirrors production systems. Security Groups act as virtual firewalls. 
+
+- Name: ec2-lab-sg
+- Description: Security Group for lab1 EC2 Instance 
+- VPC: lab-1a-vpc
+- Inbound Rules: 
+-      -Type: HTTP, Port 80, Source: Anywhere- IPv4 0.0.0.0/0, Description: HTTP
+-      - Type: SSH, Port: 22, Source: MyIP(auto-detects your current IP)
+-  Outbound rules: Default (allow all)
+
+3. Click on Create security group
+
+1. In the VPC dashboard, select Security Groups from the left menu.
+2. Click on Create security group.
+
 
 RDS inbound rule:
 
@@ -81,6 +109,16 @@ Amazon RDS was configured:
 -Accessible only from EC2 security group
 ![RDS Instance](Screenshots/database-instnace.png)
 
+## Steps on creating a Database Security Group
+1. In Aurora and RDS click on Subnet Groups in the left menu.
+2. Click on Create DB Subnet Group
+3. Fill in the Name and Description of your subnet group
+4. Choose the appropriate VPC for your subnet group
+5. Under the Add subnets heading, click select the Availability zones for your subnet
+6. On the Subnets dropdown, select ONLY the private subnets associated with your availability zones selected earlier
+7. In the Subnets selected box, review and confirm that only private subnets have been selected and then click create to complete the creation of your subnet group. 
+
+
 ## Identity & Credential Management
 -EC2 uses an IAM instnace profile
 -No static AWS credentials stored on server
@@ -91,6 +129,7 @@ Amazon RDS was configured:
 
 
 ---
+
 
 
 
