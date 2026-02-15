@@ -100,6 +100,7 @@ Only the application server can reach the database.
 
 ![RDS Security Group](Screenshots/security-group.png)
 
+---
 ### RDS- Managed Database Layer
 
 Amazon RDS was configured:
@@ -108,6 +109,12 @@ Amazon RDS was configured:
 -Public access disabled
 -Accessible only from EC2 security group
 ![RDS Instance](Screenshots/database-instnace.png)
+
+Why is it essential?
+In production:
+1. You should not run databases directly on EC2
+2. Managed services reduce operational burden
+3. it improves reliability and security posture as it demonstrates separation of compute and data layers.
 
 ## Steps on creating a Database Security Group
 1. In Aurora and RDS click on Subnet Groups in the left menu.
@@ -118,8 +125,46 @@ Amazon RDS was configured:
 6. On the Subnets dropdown, select ONLY the private subnets associated with your availability zones selected earlier
 7. In the Subnets selected box, review and confirm that only private subnets have been selected and then click create to complete the creation of your subnet group. 
 
+## AWS Secrets Manager (Credential Storage)
+
+AWS Secrets Manager securely stores sensitive information such as:
+* Database passwords
+* API Keys
+* Tokens
+* Certificates
+
+It supports:
+* Encryption at rest
+* Versioning
+* Rotation
+
+It is essential because hardcoding passwords is a critical security flaw.
+
+Without Secrets Manager:
+* Credentials would live in code
+* Rotating secrets would require redeployments
+* Breaches would be harder to contain
+
+In this Lab:
+* DB credentials stored securely
+* Application retrieves them dynamically
+* No password stored in source code
+
+This demonstrates secure configuration management.
 
 ## Identity & Credential Management
+
+An IAM role is an AWS identitiy that grants permissions to resources.
+Instead of storing AWS keys on the server:
+* The EC2 instance assumes a role
+* Temporary credentials are provided automatically
+
+Without IAM roles:
+* Static credentials must be stored
+* Credential leakage risk increases
+* Rotation becomes complex
+
+In this lab: 
 -EC2 uses an IAM instnace profile
 -No static AWS credentials stored on server
 -Secrets Manager stores database credentials
@@ -129,6 +174,27 @@ Amazon RDS was configured:
 
 
 ---
+### Amazon EC2 (Compute Layer)
+! [Amazon EC2](Screenshots/Ec2-instance-lab-1a.png)
+Amazon EC2 provides scalable virtual compute instances
+It runs on:
+* Applications
+* APIs
+* Backend services
+* Container runtimes
+
+They are essential because EC2 serves as a compute layer that:
+* Receives user requests
+* Executes business logic
+* Connects to backend services
+* Returns responses
+
+In this lab:
+* EC2 hosted the web application
+* EC2 was placed in public subnet
+* EC2 connected privately to RDS
+
+This models the real world pattern revolving public application layer and private database layer. 
 
 
 
