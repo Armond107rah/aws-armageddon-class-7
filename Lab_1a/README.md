@@ -128,7 +128,7 @@ Amazon RDS was configured:
 -Private subnet
 -Public access disabled
 -Accessible only from EC2 security group
-![RDS Instance](Screenshots/database-instnace.png)
+![RDS Instance](Screenshots/database-instance.png)
 
 Why is it essential?
 In production:
@@ -146,7 +146,7 @@ In production:
 7. In the Subnets selected box, review and confirm that only private subnets have been selected and then click create to complete the creation of your subnet group. 
 
 ## AWS Secrets Manager (Credential Storage)
-![Secretscedetials](Screenshots/secrets-manager.pg)
+![Secretscedetials](Screenshots/secrets-manager.png)
 AWS Secrets Manager securely stores sensitive information such as:
 * Database passwords
 * API Keys
@@ -242,3 +242,78 @@ http://public IP/add?note=first_note
 
 http://public IP/list
 
+## ✅ CLI Verification (Before Accessing the Database)
+Before connecting to the database, I validate the infrastructure layers in the correct order: 
+EC2 exists -->IAM role attached --> RDS exists and is available --> RDS endpoint known --> Security Groups allow DB traffic --> Secrets can be retrieved --> then connect to MYSQL.
+This prevents "guesswork" and mirrors real troubleshooting and on-call workflows.
+
+## 1) Verify EC2 instance exists (by Name tag)
+```bash
+aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=lab1-ec2" \
+  --query "Reservations[].Instances[].InstanceId"
+```
+
+This command finds the EC2 instance using its Name tag and returns the instance ID. If nothing returns, the instance doesn't exist or the tag name is wrong. 
+
+## Verify IAM role is attached to EC2
+```bash
+aws ec2 describe-instances \
+  --instance-ids <instance-id> \
+  --query "Reservations[].Instances[].IamInstanceProfile.Arn" \
+  --output text
+```
+# Verify RDS Instance Status
+```bash
+aws rds describe-db-instances \
+  --db-instance-identifier <RDS_IDENTIFIER> \
+  --query "DBInstances[].DBInstanceStatus" \
+  --output text
+```
+  This confirms the database is online and ready.
+  If it's stopped, starting, or not available, the app/DB connection can fail.
+## Get RDS Endpoint
+```bash
+aws rds describe-db-instances \
+  --db-instance-identifier <RDS_IDENTIFIER> \
+  --query "DBInstances[].Endpoint" \
+  --output json
+```
+  Returns the database hostname and port (usually 3306). You need to value this to connect from EC2 using the MYSQL client.
+  
+## Verify Security Group rules allow DB traffic (TCP 3306)
+```bash
+aws ec2 describe-security-groups \
+  --filters "Name=vpc-id,Values=<VPC_ID>" "Name=group-name,Values=<RDS_SECURITY_GROUP_NAME>" \
+  --query "SecurityGroups[].IpPermissions" \
+  --output json
+```
+Confirms the RDS security group allows inbound TCP 3306 from the correct source. Best practice is source =EC2 security group, not 0.0.0.0/0. If this is wrong, you'll get timeouts or connection refused.
+
+## Retrieve credentials from Secret Manager (From inside EC2)
+```bash
+aws secretsmanager get-secret-value \
+  --secret-id <SECRET_ID> \
+  --query "SecretString" \
+  --output text
+```
+  Returns the stored database credentials securely (username/password). If this fails with AccessDenied, IAM role policy is missing Secrets Manager permissions.
+  
+## Install MYSQL Client
+```bash
+sudo dnf install -y mysql
+```
+Installs the MYSQL CLI so you can test connectivity directly from the EC2 host.
+
+## Connect to Database
+```bash
+mysql -h my-database-1.ckl6wuikmi6s.us-east-1.rds.amazonaws.com \
+  -u admin -p
+```
+Attempts a live database connection using the endpoint and credentials.
+Common failure meanings:
+
+*timeout → networking / security group issue
+*access denied → wrong password / secret drift / user permissions
+*unknown host → wrong endpoint / DNS / config issue
+![RDSLogin](Screenshots/ScreenShot-2026-02-06-at-8.31.16-PM.png)
