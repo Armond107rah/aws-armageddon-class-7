@@ -146,7 +146,7 @@ In production:
 7. In the Subnets selected box, review and confirm that only private subnets have been selected and then click create to complete the creation of your subnet group. 
 
 ## AWS Secrets Manager (Credential Storage)
-
+![Secretscedetials](Screenshots/secrets-manager.pg)
 AWS Secrets Manager securely stores sensitive information such as:
 * Database passwords
 * API Keys
@@ -173,7 +173,7 @@ In this Lab:
 This demonstrates secure configuration management.
 
 ## Identity & Credential Management
-
+![IAMPolicy](Screenshots/iam-role-inline-2.png)
 An IAM role is an AWS identitiy that grants permissions to resources.
 Instead of storing AWS keys on the server:
 * The EC2 instance assumes a role
@@ -236,8 +236,9 @@ In the EC2, you will paste the bash script into the user data and the results sh
 ![Results2](Screenshots/inserted-note-this-is-200K-work.png) 
 
 How you do it is paste your public IP along with the list:
-http://<public IP>/init
+http://public IP/init
 
-http://<public IP>/add?note=first_note
+http://public IP/add?note=first_note
 
-http://<public IP>/list
+http://public IP/list
+
