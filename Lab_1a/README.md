@@ -71,6 +71,26 @@ The system was built in the following order:
 11. Ensure that none is selected for VPC endpoints.
 12. Click on Create VPC to create the VPC.
 
+How I setup my CIDR Range & VPC setup
+
+VPC CIDR: 10.234.0.0/16
+Region:    us-east-1
+VPC Name: lab-1a-vpc
+
+## Public Subnets: 
+
+Subnet-public-1a: 10.234.0.0/24
+Subnet-public-1b: 10.234.16.0/24
+Subnet-public-1c: 10.234.32.0/24
+
+
+## Private subnets:
+
+Subnet-private-1a: 10.234.128.0/24
+Subnet-private-1b: 10.234.144.0/24
+Subnet-private-1c: 10.234.160.0/24
+
+
 ## Security Design
 Security was implemented intentionally and mirrors production systems. Security Groups act as virtual firewalls. 
 
@@ -175,7 +195,7 @@ In this lab:
 
 ---
 ### Amazon EC2 (Compute Layer)
-! [Amazon EC2](Screenshots/Ec2-instance-lab-1a.png)
+![Amazon EC2](Screenshots/Ec2-instance-lab-1a.png)
 Amazon EC2 provides scalable virtual compute instances
 It runs on:
 * Applications
@@ -196,7 +216,28 @@ In this lab:
 
 This models the real world pattern revolving public application layer and private database layer. 
 
+### Final Infrastrucure Flow (Layered Architecture)
+1. VPC creates the isolated network boundary
+2. Security Groups define allowed communication
+3. RDS provides managed database in private subnet
+4. EC2 hosts application in public subnet
+5. Secrets Manager stores database credentials
+6. IAM role allows EC2 to retrieve secrets securely
 
+Only after all these layers are in place does:
+* Application logic execute
+* Database connectivity succeed
+* End to end trust exist
 
+![Results1](Screenshots/ScreenShot-2026-02-05-at-11.50.45-PM.png)
 
+In the EC2, you will paste the bash script into the user data and the results should come out like this:
 
+![Results2](Screenshots/inserted-note-this-is-200K-work.png) 
+
+How you do it is paste your public IP along with the list:
+http://<public IP>/init
+
+http://<public IP>/add?note=first_note
+
+http://<public IP>/list
