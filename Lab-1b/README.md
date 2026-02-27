@@ -33,3 +33,28 @@ aws ssm get-parameters \
   --names /lab1b/db/endpoint /lab1b/db/port /lab1b/db/name \
   --with-decryption
 ```
+![Results1](Lab-1b/cloudwatch_parameters.png)
+## Secrets Manager Secret
+Use the CLI to verify your secrets value
+```bash
+aws secretsmanager get-secret-value \
+  --secret-id lab/rds/mysql
+```
+## IAM Validation (Critical)
+From EC2:
+```bash
+aws ssm get-parameter --name /lab1b/db/endpoint
+aws secretsmanager get-secret-value --secret-id lab/rds/mysql
+```
+Expected:
+No AccessDeniedException
+This confirms:
+- IAM role attached properly
+- Least privilege permissions configured correctly
+
+  ## Observability - CloudWatch Logs
+  Verify Log Group Exists
+  ```bash
+aws logs describe-log-groups \
+  --log-group-name-prefix /aws/ec2/lab-rds-app
+```
