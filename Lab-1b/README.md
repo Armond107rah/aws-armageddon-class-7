@@ -20,6 +20,62 @@ In real production environments, outages are rarely caused by faulty code; they 
 This lab simulates those exact failure patterns and forces recovery without redeploying infrastructure, mirroring on-call response workflows.
 Instead of guessing fixes, we will diagnose issues using logs, retrieve known-good configuration from secure stores, and restore service methodically.
 
+## Architecture Evolution Flow
+
+User --> EC2 Application --> Parameter Store (endpoint, port, name) --> Secrets Manager (username, password) --> RDS MySQL --> Cloudwatch Logs --> Cloudwatch Alarms --> SNS Notification
+
+## Part 1- Incident Scenario
+
+Incident title: Database Connectivity Failure leads to Production Application Unavailable
+## Symptoms Reported
+- Application intermittently returns errors
+- /list endpoint fails or hangs
+- No recent code changes
+- EC2 instance is still running
+  You will not recreate the EC2, RDS, Hardcode credentials. We will use logs, alarms, use stored configuration values.
+
+  ## Part 2 - Incident Injection
+  One of the following failures will be injected:
+  - Option A: Change DB password in Secrets Manager (Do not update actual RDS password)
+  - Option B: Remove EC2 security group from RDS inbound rule (TCP 3306). This causes network isolation
+  - Option C: Stop RDS instance entirely
+
+  ## Part 3 - Monitoring & Alertine
+  Step 1: Create SNS Topic
+  ```bash
+  aws sns create-topic --name lab-db-incidents
+  ```
+  Step 2: Subscribe Email
+  ```bash
+  aws sns subscribe \
+  --topic-arn <TOPIC_ARN> \
+  --protocol email \
+  --notification-endpoint your-email@example.com
+  ```
+  Step 3: Create CloudWatch Alarm
+  ```bash
+  aws cloudwatch put-metric-alarm \
+  --alarm-name lab-db-connection-failure \
+  --metric-name DBConnectionErrors \
+  --namespace Lab/RDSApp \
+  --statistic Sum \
+  --period 300 \
+  --threshold 3 \
+  --comparison-operator GreaterThanOrEqualToThreshold \
+  --evaluation-periods 1 \
+  --alarm-actions <SNS_TOPIC_ARN>
+  ```
+  Trigger when DB connection errors are greater than 3 within 5 minutes. It should be expected taht Alarm enters ALARM state and an SNS email is sent.
+  ## Manadatory Incident Runbook
+  Section 1: Acknowledge
+  ```bash
+  aws cloudwatch describe-alarms \
+  --alarm-name lab-db-connection-failure \
+  --query "MetricAlarms[].StateValue"
+  ```
+  The Alarm word should pop up in your terminal.
+  Section 2: Observe
+  
  ## Configuration Artifacts
  We will create Parameter Store Entries. I utilized these three stored values
  ```bash
@@ -58,3 +114,4 @@ This confirms:
 aws logs describe-log-groups \
   --log-group-name-prefix /aws/ec2/lab-rds-app
 ```
+
