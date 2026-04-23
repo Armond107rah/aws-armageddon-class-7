@@ -1,0 +1,14 @@
+.DS_Store
+.terraform/
+terraform.tfstate
+crash.log
+crash.*.log
+*.auto.tfvars
+terraform.tfstate.backup
+terraform.tfvars
+*.tfvars
+*.tfstate
+*.tfstate.*
+terraform.tfvars.example
+terraform.lock.hcl
+*.pem
