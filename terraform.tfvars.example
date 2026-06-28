@@ -1,0 +1,32 @@
+## Copy to terraform.tfvars and fill in values
+
+# Temporary SSH access (your public IP)
+ssh_ingress_cidr = "YOUR.IP.ADDR/32"
+
+# RDS credentials (do not commit real passwords)
+db_username = "admin"
+db_password = "ChangeMe123!"
+
+# App DB name stored in SSM
+db_name = "labdb"
+
+# Secrets Manager secret name
+secret_name = "terraform-secrets"
+
+# SSM parameter prefix (will create /endpoint, /port, /name under this)
+ssm_param_prefix = "/lab/db"
+
+# CloudWatch Logs
+log_group_name     = "/lab-1c/app"
+log_retention_days = 7
+
+# Alerting (optional)
+# alarm_email = "you@example.com"
+
+# Optional: encrypt SSM parameters as SecureString
+# securestring_kms_key_id = "arn:aws:kms:us-east-1:123456789012:key/..."
+
+# Optional overrides (normally leave null)
+# public_subnet_id        = "subnet-..."
+# ec2_security_group_id   = "sg-..."
+
