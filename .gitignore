@@ -1,11 +1,12 @@
 
-# macOS files
+
+# macOS
 .DS_Store
 
-# Terraform provider downloads
-**/.terraform/
+# Terraform downloaded providers and modules
+.terraform/
 
-# Terraform state and backups
+# Terraform state files and backups
 *.tfstate
 *.tfstate.*
 
@@ -15,14 +16,14 @@ terraform.tfvars.json
 *.auto.tfvars
 *.auto.tfvars.json
 
-# Terraform saved plans
+# Terraform execution plans
 *.tfplan
-
-# Local environment files
-.env
-.env.*
 
 # Terraform crash logs
 crash.log
 crash.*.log
+
+# Local environment files and secrets
+.env
+.env.*
 
