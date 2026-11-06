@@ -1,11 +1,3 @@
-output "vpc_cidr_block" {
-  value = aws_vpc.main.cidr_block
-}
-
-output "private_route_table_id" {
-  value = aws_route_table.private.id
-}
-
 output "interface_endpoint_ids" {
   description = "IDs of interface VPC endpoints"
 

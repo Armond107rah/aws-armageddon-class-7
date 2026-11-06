@@ -31,17 +31,6 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
-# Allow HTTP from our trusted testing IP
-resource "aws_vpc_security_group_ingress_rule" "http" {
-  security_group_id = aws_security_group.web_sg.id
-
-  description = "Allow HTTP from testing location"
-  cidr_ipv4   = var.allowed_http_cidr
-  from_port   = 80
-  to_port     = 80
-  ip_protocol = "tcp"
-}
-
 # Permit outbound connections
 resource "aws_vpc_security_group_egress_rule" "outbound" {
   security_group_id = aws_security_group.web_sg.id
@@ -56,12 +45,12 @@ resource "aws_vpc_security_group_egress_rule" "outbound" {
 resource "aws_instance" "web_server" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = "t3.micro"
-  subnet_id              = var.public_subnet_id
+  subnet_id              = var.private_subnet_id
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
   iam_instance_profile = var.instance_profile_name
 
-  associate_public_ip_address = true
+  associate_public_ip_address = false
 
   root_block_device {
     volume_size = 8

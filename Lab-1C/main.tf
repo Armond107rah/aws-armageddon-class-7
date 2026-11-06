@@ -14,7 +14,25 @@ module "networking" {
     "10.234.144.0/24"
   ]
   # NAT gateway setting
-  enable_nat_gateway = false
+  enable_nat_gateway = true
+}
+
+module "vpc_endpoints" {
+  source = "./modules/vpc_endpoints"
+
+  project_name = "lab-1c-learning"
+  aws_region   = "us-east-1"
+
+  vpc_id         = module.networking.vpc_id
+  vpc_cidr_block = module.networking.vpc_cidr_block
+
+  endpoint_subnet_ids = [
+    module.networking.private_subnet_ids[0]
+  ]
+
+  private_route_table_ids = [
+    module.networking.private_route_table_id
+  ]
 }
 
 module "iam" {
@@ -28,10 +46,8 @@ module "compute" {
 
   project_name          = "lab-1c-learning"
   vpc_id                = module.networking.vpc_id
-  public_subnet_id      = module.networking.public_subnet_ids[0]
+  private_subnet_id     = module.networking.private_subnet_ids[0]
   instance_profile_name = module.iam.instance_profile_name
-
-  allowed_http_cidr = var.allowed_http_cidr
 }
 
 module "database" {

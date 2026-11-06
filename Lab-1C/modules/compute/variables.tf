@@ -9,17 +9,12 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "public_subnet_id" {
-  description = "Public subnet for the temporary web server"
+variable "private_subnet_id" {
+  description = "Private subnet where EC2 will run"
   type        = string
 }
 
 variable "instance_profile_name" {
   description = "IAM instance profile from IAM module"
-  type        = string
-}
-
-variable "allowed_http_cidr" {
-  description = "Trusted IPv4 address range allowed to test the web server"
   type        = string
 }

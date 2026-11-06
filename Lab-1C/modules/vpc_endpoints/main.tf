@@ -55,21 +55,3 @@ resource "aws_vpc_endpoint" "s3" {
     Name = "${var.project_name}-s3-endpoint"
   }
 }
-
-module "vpc_endpoints" {
-  source = "./modules/vpc_endpoints"
-
-  project_name = var.project_name
-  aws_region   = var.aws_region
-
-  vpc_id         = module.networking.vpc_id
-  vpc_cidr_block = module.networking.vpc_cidr_block
-
-  endpoint_subnet_ids = [
-    module.networking.private_subnet_ids[0]
-  ]
-
-  private_route_table_ids = [
-    module.networking.private_route_table_id
-  ]
-}
