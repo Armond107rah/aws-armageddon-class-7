@@ -1,0 +1,32 @@
+
+# Terraform downloaded providers
+.terraform/
+
+# Terraform state - never upload to GitHub
+*.tfstate
+*.tfstate.*
+terraform.tfstate.d/
+
+# Terraform variable files containing possible secrets
+*.tfvars
+*.tfvars.json
+
+# Saved Terraform plans
+*.tfplan
+*.plan
+
+# Terraform crash logs
+crash.log
+crash.*.log
+
+# Environment files and private keys
+.env
+.env.*
+*.pem
+*.key
+
+# macOS files
+.DS_Store
+
+.venv/
+__pycache__/
