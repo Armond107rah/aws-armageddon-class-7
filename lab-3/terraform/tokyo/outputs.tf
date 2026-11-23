@@ -28,3 +28,35 @@ output "tokyo_region" {
   description = "Region of the Tokyo infrastructure"
   value       = var.aws_region
 }
+
+output "tokyo_app_security_group_id" {
+  description = "Security group reserved for Tokyo application"
+  value       = aws_security_group.tokyo_app.id
+}
+
+output "tokyo_ec2_instance_profile_name" {
+  description = "Instance profile for future Tokyo EC2"
+  value       = module.iam.instance_profile_name
+}
+
+output "tokyo_rds_endpoint" {
+  description = "Private Tokyo RDS endpoint when enabled"
+
+  value = (
+    var.enable_tokyo_database
+    ? module.database[0].rds_endpoint
+    : null
+  )
+
+  sensitive = true
+}
+
+output "tokyo_rds_security_group_id" {
+  description = "Tokyo database security group when enabled"
+
+  value = (
+    var.enable_tokyo_database
+    ? module.database[0].rds_security_group_id
+    : null
+  )
+}

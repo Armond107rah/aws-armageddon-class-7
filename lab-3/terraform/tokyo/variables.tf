@@ -47,3 +47,23 @@ variable "enable_nat_gateway" {
   type        = bool
   default     = false
 }
+
+# Database deployment is intentionally disabled until the planned AWS deployment lesson.
+
+variable "enable_tokyo_database" {
+  description = "Enable the Tokyo RDS database and configuration"
+  type        = bool
+  default     = false
+}
+
+variable "db_name" {
+  description = "Name of the synthetic lab database"
+  type        = string
+  default     = "labdb"
+}
+
+variable "db_username" {
+  description = "Database administrator username"
+  type        = string
+  default     = "labadmin"
+}
