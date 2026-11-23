@@ -1,0 +1,15 @@
+
+# Terraform local data and credentials
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+*.pem
+*.key
+.env
+crash.log
+
+# macOS files
+.DS_Store
