@@ -67,3 +67,23 @@ variable "db_username" {
   type        = string
   default     = "labadmin"
 }
+
+# Tokyo application deployment is disabled until the deployment readiness review.
+
+variable "enable_tokyo_compute" {
+  description = "Create the private Tokyo application EC2 instance"
+  type        = bool
+  default     = false
+}
+
+variable "tokyo_instance_type" {
+  description = "EC2 instance type for the Tokyo application"
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "tokyo_bootstrap_ready" {
+  description = "Explicit confirmation that application deployment prerequisites are ready"
+  type        = bool
+  default     = false
+}

@@ -60,3 +60,25 @@ output "tokyo_rds_security_group_id" {
     : null
   )
 }
+
+output "tokyo_ec2_instance_id" {
+  description = "Tokyo application instance ID when enabled"
+
+  value = (
+    var.enable_tokyo_compute
+    ? aws_instance.tokyo_app[0].id
+    : null
+  )
+}
+
+output "tokyo_ec2_private_ip" {
+  description = "Tokyo application private IP when enabled"
+
+  value = (
+    var.enable_tokyo_compute
+    ? aws_instance.tokyo_app[0].private_ip
+    : null
+  )
+
+  sensitive = true
+}
