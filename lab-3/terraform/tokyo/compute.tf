@@ -16,18 +16,29 @@ data "aws_ssm_parameter" "tokyo_al2023_ami" {
 #
 # This does NOT provide internet access.
 
+
+# EC2 may reach only the approved VPC endpoint security group on HTTPS.
+# This rule exists when both compute and private endpoints are enabled.
+
 resource "aws_vpc_security_group_egress_rule" "tokyo_https" {
-  count = var.enable_tokyo_compute ? 1 : 0
+  count = (
+    var.enable_tokyo_compute &&
+    var.enable_tokyo_private_endpoints
+  ) ? 1 : 0
 
   security_group_id = aws_security_group.tokyo_app.id
+
+  referenced_security_group_id = (
+    aws_security_group.tokyo_endpoint_sg[0].id
+  )
 
   ip_protocol = "tcp"
   from_port   = 443
   to_port     = 443
-  cidr_ipv4   = var.vpc_cidr
 
-  description = "HTTPS to private VPC service endpoints"
+  description = "HTTPS to approved VPC endpoints"
 }
+
 
 # Private Tokyo application instance.
 
@@ -86,10 +97,11 @@ resource "aws_instance" "tokyo_app" {
     precondition {
       condition = (
         var.enable_tokyo_database &&
+        var.enable_tokyo_private_endpoints &&
         var.tokyo_bootstrap_ready
       )
 
-      error_message = "Do not enable Tokyo EC2 until RDS, private connectivity, TLS, and bootstrap dependencies have been reviewed."
+      error_message = "Tokyo EC2 requires RDS, private endpoints, and an approved bootstrap configuration."
     }
   }
 

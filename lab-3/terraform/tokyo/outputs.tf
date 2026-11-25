@@ -82,3 +82,22 @@ output "tokyo_ec2_private_ip" {
 
   sensitive = true
 }
+
+output "tokyo_interface_endpoint_ids" {
+  description = "Tokyo interface endpoint IDs by service"
+
+  value = {
+    for service, endpoint in aws_vpc_endpoint.tokyo_interface :
+    service => endpoint.id
+  }
+}
+
+output "tokyo_s3_gateway_endpoint_id" {
+  description = "Tokyo S3 gateway endpoint ID when enabled"
+
+  value = (
+    var.enable_tokyo_private_endpoints
+    ? aws_vpc_endpoint.tokyo_s3[0].id
+    : null
+  )
+}

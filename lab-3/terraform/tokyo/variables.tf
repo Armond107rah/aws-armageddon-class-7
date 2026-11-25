@@ -87,3 +87,11 @@ variable "tokyo_bootstrap_ready" {
   type        = bool
   default     = false
 }
+
+# AWS interface endpoints remain disabled until the planned deployment lesson.
+
+variable "enable_tokyo_private_endpoints" {
+  description = "Deploy private Tokyo AWS service endpoints"
+  type        = bool
+  default     = false
+}
