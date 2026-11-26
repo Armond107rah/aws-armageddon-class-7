@@ -1,10 +1,7 @@
 
 # -------------------------------------------
-# Tokyo EC2 application foundation
+# Tokyo private application EC2
 # -------------------------------------------
-
-# Deployment remains disabled by default.
-# Use the official public SSM parameter to identify an Amazon Linux 2023 AMI in Tokyo.
 
 data "aws_ssm_parameter" "tokyo_al2023_ami" {
   count = var.enable_tokyo_compute ? 1 : 0
@@ -12,13 +9,7 @@ data "aws_ssm_parameter" "tokyo_al2023_ami" {
   name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
 }
 
-# Permit HTTPS traffic to private AWS service endpoints located inside the Tokyo VPC.
-#
-# This does NOT provide internet access.
-
-
-# EC2 may reach only the approved VPC endpoint security group on HTTPS.
-# This rule exists when both compute and private endpoints are enabled.
+# HTTPS access to approved AWS interface endpoints.
 
 resource "aws_vpc_security_group_egress_rule" "tokyo_https" {
   count = (
@@ -36,11 +27,8 @@ resource "aws_vpc_security_group_egress_rule" "tokyo_https" {
   from_port   = 443
   to_port     = 443
 
-  description = "HTTPS to approved VPC endpoints"
+  description = "HTTPS to approved interface endpoints"
 }
-
-
-# Private Tokyo application instance.
 
 resource "aws_instance" "tokyo_app" {
   count = var.enable_tokyo_compute ? 1 : 0
@@ -59,13 +47,11 @@ resource "aws_instance" "tokyo_app" {
 
   associate_public_ip_address = false
 
-  # Require IMDSv2 for instance metadata access.
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "required"
   }
 
-  # Encrypt the instance root volume.
   root_block_device {
     volume_type           = "gp3"
     volume_size           = 12
@@ -73,7 +59,8 @@ resource "aws_instance" "tokyo_app" {
     delete_on_termination = true
   }
 
-  # Reuse the Lab 2 app while correcting the Tokyo-specific runtime settings.
+  # Small bootstrap script.
+  # Application code and wheels live in S3.
   user_data = templatefile(
     "${path.module}/bootstrap.sh.tftpl",
     {
@@ -83,13 +70,12 @@ resource "aws_instance" "tokyo_app" {
 
       db_instance_identifier = "${var.project_name}-mysql"
 
-      app_b64 = base64encode(
-        file("${path.module}/../../../lab-2/infrastructure/app/app.py")
-      )
+      artifact_bucket = aws_s3_bucket.tokyo_artifacts[0].bucket
+      artifact_key    = "releases/tokyo-app-bundle.tar.gz"
 
-      requirements_b64 = base64encode(
-        file("${path.module}/../../../lab-2/infrastructure/app/requirements.txt")
-      )
+      artifact_sha256 = var.tokyo_bundle_sha256
+
+      log_group_name = aws_cloudwatch_log_group.tokyo_app[0].name
     }
   )
 
@@ -98,15 +84,22 @@ resource "aws_instance" "tokyo_app" {
       condition = (
         var.enable_tokyo_database &&
         var.enable_tokyo_private_endpoints &&
-        var.tokyo_bootstrap_ready
+        var.enable_tokyo_artifact_bucket &&
+        var.enable_tokyo_monitoring &&
+        var.tokyo_bootstrap_ready &&
+        can(regex("^[0-9a-f]{64}$", var.tokyo_bundle_sha256))
       )
 
-      error_message = "Tokyo EC2 requires RDS, private endpoints, and an approved bootstrap configuration."
+      error_message = "Tokyo EC2 requires RDS, private endpoints, an artifact bucket, monitoring, an approved bootstrap, and a 64-character SHA256 checksum."
     }
   }
 
   depends_on = [
-    aws_iam_role_policy.tokyo_db_config_read
+    aws_iam_role_policy.tokyo_db_config_read,
+    aws_iam_role_policy.tokyo_artifact_read,
+    aws_iam_role_policy.tokyo_observability,
+    aws_vpc_endpoint.tokyo_s3,
+    aws_cloudwatch_log_group.tokyo_app
   ]
 
   tags = {

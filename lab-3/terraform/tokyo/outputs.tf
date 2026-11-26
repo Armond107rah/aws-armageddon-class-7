@@ -101,3 +101,23 @@ output "tokyo_s3_gateway_endpoint_id" {
     : null
   )
 }
+
+output "tokyo_artifact_bucket_name" {
+  description = "Private artifact bucket name"
+
+  value = (
+    var.enable_tokyo_artifact_bucket
+    ? aws_s3_bucket.tokyo_artifacts[0].bucket
+    : null
+  )
+}
+
+output "tokyo_application_log_group" {
+  description = "Application CloudWatch log group"
+
+  value = (
+    var.enable_tokyo_monitoring
+    ? aws_cloudwatch_log_group.tokyo_app[0].name
+    : null
+  )
+}

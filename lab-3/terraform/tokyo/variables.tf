@@ -95,3 +95,21 @@ variable "enable_tokyo_private_endpoints" {
   type        = bool
   default     = false
 }
+
+variable "enable_tokyo_artifact_bucket" {
+  description = "Enable the private Tokyo S3 artifact bucket"
+  type        = bool
+  default     = false
+}
+
+variable "enable_tokyo_monitoring" {
+  description = "Enable Tokyo application monitoring"
+  type        = bool
+  default     = false
+}
+
+variable "tokyo_bundle_sha256" {
+  description = "Approved SHA256 checksum of the application bundle"
+  type        = string
+  default     = ""
+}

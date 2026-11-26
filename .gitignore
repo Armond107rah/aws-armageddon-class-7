@@ -13,3 +13,7 @@ crash.log
 
 # macOS files
 .DS_Store
+
+# Lab 3 application build artifacts
+lab-3/build/
+lab-3/app/certs/

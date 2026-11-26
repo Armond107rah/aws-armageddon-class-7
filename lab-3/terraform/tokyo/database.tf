@@ -25,7 +25,7 @@ resource "aws_security_group" "tokyo_app" {
 module "database" {
   count = var.enable_tokyo_database ? 1 : 0
 
-  source = "../../../lab-2/infrastructure/modules/database"
+  source = "../modules/database"
 
   project_name = var.project_name
 
